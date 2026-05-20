@@ -4,6 +4,7 @@ from rag.embeddings import get_embedding
 from rag.vector_store import store_data, retrieve_data
 from tools.approval_tool import approval_step
 from tools.topic_generator import generate_topic
+from tools.context_loader import load_company_context
 
 class AgentOrchestrator:
     def __init__(self):
@@ -12,17 +13,31 @@ class AgentOrchestrator:
     def run(self, topic: str = None):
         print("Agent started...")
 
-        if not topic:
-            topic = generate_topic(self.llm)
-            print(f"Generated Topic: {topic}")
+        company_context = load_company_context()
+
+        final_topic = topic
+
+        if not final_topic:  
+            
+            generated_topics = generate_topic(self.llm, company_context)
+            print("Generated Topics: \n")
+
+            for i, item in enumerate(generated_topics, start=1):
+                print(f"{i}. {item}")
+
+            choice = int(input("\nSelect topic number: "))
+            final_topic = generated_topics[choice-1]
+
+        print(final_topic) 
+
         # Step 1: embed topic (for retrieval)
-        query_embedding = get_embedding(topic)
+        query_embedding = get_embedding(final_topic)
 
         # Step 2: retrieve company knowledge
         retrieved = retrieve_data(query_embedding)
 
         # Step 3: web search for trends
-        search_context = web_search(f"{topic} trends OR festival OR latest updates")
+        search_context = web_search(f"{final_topic} trends OR festive sales OR latest updates")
 
         # Step 4: store web knowledge
         embedding = get_embedding(search_context)
@@ -34,7 +49,7 @@ class AgentOrchestrator:
 
         combined_context = f"""
         Company knowledge:
-        {rag_context}
+        {company_context}
 
         Latest trends:
         {web_context}
@@ -54,7 +69,7 @@ class AgentOrchestrator:
         Context:
         {combined_context}
 
-        Topic: {topic}
+        Topic: {final_topic}
         """
 
         response = self.llm.generate(prompt)
