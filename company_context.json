@@ -1,0 +1,10 @@
+{
+    "company_name": "Zomato",
+    "industry": "food delivery and restraunt discovery",
+    "tone": "witty and relatable",
+    "audience": "urban foodies and mobile-first users",
+    "services": ["food delivery",
+    "dining options"],
+    "approved_topics": ["trending dishes", "restaurant reviews", "delivery convenience", "local food culture"],
+    "rejected_topics": ["political commentary", "medical health advice", "unrelated tech news"]
+}       
