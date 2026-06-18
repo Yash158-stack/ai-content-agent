@@ -5,6 +5,7 @@ from rag.vector_store import store_data, retrieve_data
 from tools.approval_tool import approval_step
 from tools.topic_generator import generate_topic
 from tools.context_loader import load_company_context
+from database.post_repository import save_post
 
 class AgentOrchestrator:
     def __init__(self):
@@ -76,5 +77,10 @@ class AgentOrchestrator:
 
         #Step 7: human approval 
         final_content = approval_step(response)
+
+        save_post(
+            topic = final_topic,
+            content = final_content
+        )
 
         return final_content
